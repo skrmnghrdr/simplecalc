@@ -1,0 +1,4 @@
+whem making some changes with the cmake.txt file in the root dir of this program, 
+
+do not forget to cmake --build . --target clean
+then run the nomral cmake --build . after that

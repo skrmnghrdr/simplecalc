@@ -1,0 +1,3 @@
+/mnt/c/Users/skrm/Desktop/17Lifestory/Tool Developer/simplecalc/build/CMakeFiles/simplecalc.dir
+/mnt/c/Users/skrm/Desktop/17Lifestory/Tool Developer/simplecalc/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/skrm/Desktop/17Lifestory/Tool Developer/simplecalc/build/CMakeFiles/rebuild_cache.dir

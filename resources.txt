@@ -1,0 +1,53 @@
+https://stackoverflow.com/questions/41732726/using-argv-to-pass-variable-in-c
+f you pass a number with more than one digit, it should crash, because the ASCII value is taken only for individual characters, thats another reason why you should convert it – 
+J3STER
+Jan 19, 2017 at 2:47
+
+https://stackoverflow.com/questions/55468823/how-to-detect-integer-overflow-in-c#:~:text=It's%20very%20tricky%20since%20you,you%20have%20an%20overflow%20situation.
+
+
+#include <limits.h>
+
+int safe_add(int a, int b) 
+{
+    if (a >= 0) {
+        if (b > (INT_MAX - a)) {
+            /* handle overflow */
+        }
+    } else {
+        if (b < (INT_MIN - a)) {
+            /* handle underflow */
+        }
+    }
+    return a + b;
+}
+
+https://stackoverflow.com/questions/1815367/catch-and-compute-overflow-during-multiplication-of-two-large-integers
+
+a * b > c if and only if a > c / b
+some math rule
+"This is hAaAaAaArd" - Ana
+
+doing some experiments, this results in always true, now, we ask google and look for if it was true or not
+int main()
+{
+    float bigger_number = 52;
+    float x = 10;
+    float y = 5;
+    
+    float first_equation = bigger_number/x;
+    float second_equation = x*y;
+    
+    printf("%f: first equation\n", first_equation);
+    printf("%f: second equation\n", second_equation);
+    
+    if((first_equation > y) && (bigger_number > second_equation)){
+        printf("Statement returns true!\n");
+        printf("values: bigger_number:%f\n", bigger_number);
+        printf("x: %f, y: %f", x, y);
+    }
+    
+    return 0;
+}
+
+https://www.scaler.com/topics/c/overflow-and-underflow-in-c/
