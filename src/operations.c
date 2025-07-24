@@ -71,7 +71,6 @@ __INT32_TYPE__ add(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error){
      * extern int calc_error returns error code
      */
     __INT32_TYPE__ result = 0;
-    int error_detected = 1;
 
     if(
         //overflow check
@@ -81,7 +80,7 @@ __INT32_TYPE__ add(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error){
     )
     {
         debug();
-        *calc_error = error_detected;
+        *calc_error = ADDITION_ERROR;
         return result;
     }
     else
@@ -94,7 +93,6 @@ __INT32_TYPE__ add(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error){
 
 __INT32_TYPE__ subtract(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error){
      __INT32_TYPE__ result = 0;
-    int error_detected = 1;
     if(
         //overflow check
         ((xxx < 0) && (yyy > (INT32_MAX + xxx))) ||
@@ -104,7 +102,7 @@ __INT32_TYPE__ subtract(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error)
     )
     {
         debug();
-        *calc_error = error_detected;
+        *calc_error = SUBTRACTION_ERROR;
         return result;
     }
     else
@@ -115,19 +113,54 @@ __INT32_TYPE__ subtract(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error)
     }
 }
 
-__INT32_TYPE__ multiply(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy){
-    __INT32_TYPE__ result = (xxx * yyy);
+__INT32_TYPE__ multiply(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error){
+
+    __INT32_TYPE__ result = 0;
+    //do not forget to check for 0 since we are diving here
+    if( (0 == yyy || 0 == xxx )){
+        return result;
+    }else if(
+        (xxx > (INT32_MAX / yyy))||
+        (xxx < (INT32_MIN / yyy))
+    )
+    {
+        debug();
+        *calc_error = MULTIPLICATION_ERROR;
+        return result;
+    }
+    else
+    {   
+        result = (xxx * yyy);
+        debug();
+        return result;
+    }
     return result;
 }
 
 __INT32_TYPE__ jet2holiday(){
     //print this if you detect bad input or over/underflow
     printf(
-  "\xE2\x99\xAC\xE2\x99\xAA\xE2\x99\xB6\x20\x44\x61\x52\x6C\x31\x6E\x47\x20\x48\x6F\x4C\x64\x20\x4D\x79\x20\x48\x61\x41\x61\x41\x6E\x44\x21\x20"
-  "\xE2\x99\xB6\xE2\x99\xAA\xE2\x99\xB6\x0A\x6E\x4F\x74\x48\x69\x4E\x67\x20\x42\x65\x41\x74\x53\x20\x61\x20\x4A\x65\x54\x32\x48\x6F\x6C\x49\x64\x41\x79\x20\x61\x4E\x64\x20\x52\x69\x67\x48\x74"
-  "\x4E\x6F\x57\x20\x79\x4F\x75\x20\x43\x61\x4E\x20\x73\x41\x76\x45\x20\x35\x30\x4C\x62\x73\x20\x50\x65\x52\x70\x75\x72\x72\x53\x75\x6E\x0A\x20\x54\x68\x41\x41\x41\x74\x27\x73\x20\x32\x6F\x30\x4C\x42\x73\x20\x6F\x46\x66\x66\x20\x34\x20\x40\x20\x46\x61\x4D\x69\x6C\x59\x20\x6F\x66\x20\x46\x6F\x57\x65\x72\x2E\x2E\x0A"
+  "\xE2\x99\xAC\xE2\x99\xAA\xE2\x99\xB6\x20\x44\x61\x52\x6C\x31\x6E\x47\x20\x48\x6F\x4C\x64\x20\x4D\x79\x20\x48\x61\x41\x61\x41\x6E\x44\x21\x20\xE2\x99\xB6\xE2\x99\xAA\xE2\x99\xB6\x0A\x6E\x4F\x74\x48\x69\x4E\x67\x20\x42\x65\x41\x74\x53\x20\x61\x20\x4A\x65\x54\x32\x48\x6F\x6C\x49\x64\x41\x79\x20\x61\x4E\x64\x20\x52\x69\x67\x48\x74\x4E\x6F\x57\x20\x79\x4F\x75\x20\x43\x61\x4E\x20\x73\x41\x76\x45\x20\x35\x30\x4C\x62\x73\x20\x50\x65\x52\x70\x75\x72\x72\x53\x75\x6E\x0A\x20\x54\x68\x41\x41\x41\x74\x27\x73\x20\x32\x6F\x30\x4C\x42\x73\x20\x6F\x46\x66\x66\x20\x34\x20\x40\x20\x46\x61\x4D\x69\x6C\x59\x20\x6F\x66\x20\x46\x6F\x57\x65\x72\x2E\x2E\x0A" 
     );
   return 1;
 }
-__INT32_TYPE__ divide(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy);
+__INT32_TYPE__ divide(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error){
+    //div is a unique case
+    __INT32_TYPE__ result = 0;
+    debug();
+    if(
+        (-1 == xxx || -1 == yyy) && (INT32_MIN == yyy || INT32_MIN == xxx)
+    )
+    {
+        *calc_error = DIVISION_ERROR;
+    }else if (yyy == 0)
+    {
+        *calc_error = DIVISION_ZERO_ERROR;
+    }else
+    {
+        result = (xxx / yyy);
+    }
+    return result;
+
+}
 __INT32_TYPE__ modulo(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy);

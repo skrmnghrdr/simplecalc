@@ -11,7 +11,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+
+#include <string.h>
+
 #include <float.h>
 #include <errno.h>
 
@@ -48,7 +50,11 @@ void print_debug_args(){
     printf("Addition integer overflow: \nset args 2147483647  test 100\n");
     printf("Addition UNDERFLOW:\n set args -2147483648 test -100\n");
     printf("Subtraction int overflow:\nset args 2147483640 test -100\n");
-    printf("Subtraction int UNDERFLOW:\nset args -2147483640 test 100");
+    printf("Subtraction int UNDERFLOW:\nset args -2147483640 test 100\n");
+    printf("Multiplication OVERFLOW:\nset args 50000 test 100000\n");
+    printf("Multiplication underflow:\nset args -50000 test 100000\n");
+    printf("Division arguments:\nset args 1000 test 0\nset args -10000 test 10\nset args -2147483648 test -1\n");
+
     return;
 }
 int main(int argc, char *argv[]){
@@ -60,13 +66,13 @@ int main(int argc, char *argv[]){
     //first arg is alsways the filename
     //filename arg1 arg2 arg3
     char operand_buff[4];
+
     errno = 0;
     __INT32_TYPE__ first_number;
     __INT32_TYPE__ second_number;
 
     int calc_error = 0;
     int *ptr_calc_error = &calc_error;
-
 
     //unused?
     long long_first_number;
@@ -82,7 +88,6 @@ int main(int argc, char *argv[]){
         return 0;
     }
     //begin the cleasing of input ✞✞✞
-    //we might be able to get away with long,
     long_first_number = strtol(argv[1], &ptr_end_first_number, 10);
     long_second_number = strtol(argv[3], &ptr_end_second_number, 10);
 
@@ -99,28 +104,27 @@ int main(int argc, char *argv[]){
     if(check_min_max(long_first_number, long_second_number)){
         //since strtolong does convert it to long,
         //we can check if the number here exceeds int
-        printf("The number you have provided is too much or too lil for the likes of INT32_MAX, or MIN\n");
+        printf("The number you have provided is too much or too lil for the likes of INT32_MAX, or INT32_MIN\n");
         return 0;
     }else{
         first_number = long_first_number;
         second_number = long_second_number;
     }
     // ✞✞✞ INPUT CLEANSED. LEAVE THiS VESSEL IN PEACE
-
-
-
     //now with the input cleansed, we can decide which operations to put
     /*
     that being said, we can switch case the single characters, but for the multi ones, we might have to do a fat if else statement 
     that's too complicated bro, we just probably need to compare all the strings here and call it a night, you're tried.
-
      */
     //debug anchor
     
     //__INT32_TYPE__ result = add(first_number, second_number, ptr_calc_error);
-    __INT32_TYPE__ result = subtract(first_number, second_number, ptr_calc_error);
+    //__INT32_TYPE__ result = subtract(first_number, second_number, ptr_calc_error);
+    __INT32_TYPE__ result = divide(first_number, second_number, ptr_calc_error);
+
 
     printf("Result:%d\n", result);
+
     if(calc_error){
         jet2holiday();
     }
