@@ -51,3 +51,7 @@ int main()
 }
 
 https://www.scaler.com/topics/c/overflow-and-underflow-in-c/
+
+
+https://stackoverflow.com/questions/26080829/detecting-strtol-failure
+if errorn is not equal to zero, then strtol was invalid, shit, if errno waas not equal to zero, just exit the dman program graceuflly

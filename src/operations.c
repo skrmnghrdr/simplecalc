@@ -9,6 +9,8 @@
  * 
  */
 #include <operations.h>
+#include <math.h>
+#include <string.h>
 
 
 
@@ -18,6 +20,8 @@ __INT32_TYPE__ y = 0;
 
 int calc_error = 0;
 int *ptr_calc_error = &calc_error;
+
+
 
 void debug(){
     /* debug purposes only, used to achor in gdb */
@@ -30,11 +34,13 @@ void usage(){
     return;
 }
 
-int check_min_max(long xxx, long yyy){
+int int_check_min_max(long xxx, long yyy){
     /**
      * @brief checks xxx and yyy if they're both legal values of int32_max
      * we initally put long since strtol already has error checkin if we provide a long-er value than long
      * we then do another checking inside the operand function
+     * we will write a separate uint checker for our anxiety to 
+     * calm down and not rely on the operand.
      */
     if(
         (xxx > INT32_MAX) || 
@@ -47,23 +53,23 @@ int check_min_max(long xxx, long yyy){
     return 0;
 }
 
+int uint_check_min_max(long xxx, long yyy){
+    /** @brief samesies with int, just uint */
+    if(
+        (xxx > UINT32_MAX) || 
+        (xxx < UINT32_MIN) ||
+        (yyy > INT32_MAX) ||
+        (yyy < UINT32_MIN)  )
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int check_valid_input(__INT32_TYPE__ xxx, char operand, __INT32_TYPE__ yyy){
     //fix this later
     return 0;
 }
-
-__INT32_TYPE__ calculate(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy){
-    /**
-     * if the operand invovles all int32_type, check int32 min max
-     * if the opearnd involves all uint32_type, ehck uint32 min max then
-     * 
-     * once we get the valid opearand and the int types
-     * we can proceed to do the calculations?
-     * -
-     */
-    return 0;
-}
-
 
 __INT32_TYPE__ add(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error){
     /**
@@ -164,3 +170,157 @@ __INT32_TYPE__ divide(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy, int *calc_error){
 
 }
 __INT32_TYPE__ modulo(__INT32_TYPE__ xxx, __INT32_TYPE__ yyy);
+
+/* start of bitwise functions */
+
+__UINT32_TYPE__ shift_left(__UINT32_TYPE__ number, __UINT32_TYPE__ bits, int *calc_error){
+    /* we'll have to do another separate check here so  that this one won't overflow since uint has one more bit highher thatn signed int*/
+    __UINT32_TYPE__ result = 0;
+    //convert to double so pow will not cry
+    double db_base = (double) 2;
+    double db_bits = (double) bits;
+    const int MAX_BITS = 31;
+
+    __UINT32_TYPE__ exponent = (__UINT32_TYPE__) pow(db_base, db_bits);
+
+    //error, arithmetic when putting big number, 
+    //fix shl when crshing and handle it
+    __UINT32_TYPE__ cieling = (UINT32_MAX / exponent);
+
+    if(0 == bits){
+        //no bits to move
+        result = number;
+    }
+    else if(bits > MAX_BITS)
+    {
+        *calc_error = SHIFT_ERROR;
+    }
+    else if(number > cieling){
+        *calc_error = SHIFT_ERROR;
+    }else{
+        result = number * exponent;
+    }
+
+    return result;
+}
+
+//BEGIN BITWISE
+__UINT32_TYPE__ bitwise_and(__UINT32_TYPE__ first_num, __UINT32_TYPE__ second_num, int *calc_error){
+    /*input was checked before hand, no concern of over/underflow if input was within range*/
+    __UINT32_TYPE__ result = 0;
+    result = (first_num & second_num);
+    return result;
+}
+__UINT32_TYPE__ bitwise_or(__UINT32_TYPE__ first_num, __UINT32_TYPE__ second_num, int *calc_error){
+
+    __UINT32_TYPE__ result = 0;
+    result = (first_num | second_num);
+    return result;
+}
+__UINT32_TYPE__ bitwise_exclusive_or(__UINT32_TYPE__ first_num, __UINT32_TYPE__ second_num, int *calc_error){
+    __UINT32_TYPE__ result = 0;
+    result = (first_num ^ second_num);
+    return result;
+}
+
+__UINT32_TYPE__ shift_right(__UINT32_TYPE__ number, __UINT32_TYPE__ bits, int *calc_error){
+    
+    /* we'll have to do another separate check here so  that this one won't overflow since uint has one more bit highher thatn signed int*/
+    __UINT32_TYPE__ result = 0;
+    //convert to double so pow will not cry
+    double db_base = (double) 2;
+    double db_bits = (double) bits;
+    const int MAX_BITS = 31;
+
+    __UINT32_TYPE__ exponent = (__UINT32_TYPE__) pow(db_base, db_bits);
+    debug();
+    debug();
+    //you would not have the ceiling issue with this since it would always be diviging, as long as the bitJ
+    if(0 == bits){
+        //no bits to move
+        result = number;
+        debug();
+    }else if(MAX_BITS < bits){
+        *calc_error = SHIFT_ERROR;
+    }else{
+        result = number / exponent;
+    }
+
+    return result;
+}
+
+void calculate(long xxx, char *operand, long yyy, int *ptr_calc_error, results *ptr_struct_result){
+    /**
+     * calculates based on the opeard and puts error on calc error as output parameter
+     * where operand is a null terminated string
+     */
+    __UINT32_TYPE__ u_first_number = 0;
+    __UINT32_TYPE__ u_second_number = 0;
+    __INT32_TYPE__ first_number = 0;
+    __INT32_TYPE__ second_number = 0;
+    int USE_UNSIGNED_INT = 1;
+    int INVALID_UINT_VAL = uint_check_min_max(xxx, yyy);
+    int INVALID_INT_VAL = int_check_min_max(xxx, yyy);
+    
+    char uint32_operands[7][3] = {"<<", ">>", "&","|", "^", "<<<", ">>>"};
+    char int32_operands[5][2] = {"+", "-", "*", "/", "%"};
+
+    if(USE_UNSIGNED_INT)
+    {
+        if(INVALID_UINT_VAL)
+        {
+            *ptr_calc_error = CHECK_UINT_MIN_MAX_ERROR;
+            goto EXIT;
+        }
+        u_first_number = xxx;
+        u_second_number = yyy;
+        //do ops
+    }
+    else
+    {
+        if(INVALID_INT_VAL)
+        {
+            *ptr_calc_error = CHECK_INT_MIN_MAX_ERROR;
+            goto EXIT;
+        }
+        first_number = xxx;
+        second_number = yyy;
+    }
+    //implement a helper function ehre someday I guess.
+    //the program states to just output lol we can print it here and //call it a day for now
+    if(0 == (strcmp(operand, "<<") | INVALID_UINT_VAL) )
+    {
+        //stack gets here, but somehow, shl is 0?
+        __UINT32_TYPE__ result = shift_left(u_first_number, u_second_number, ptr_calc_error);
+
+        ptr_struct_result->flag = PRINT_UINT;
+        ptr_struct_result->uint32_result = result;
+        printf("Go to sleep lmao\n");
+    }
+    else if (0 == (strcmp(operand, ">>") | INVALID_UINT_VAL) )
+    {
+        /* code */
+    }
+    else if(0 == (strcmp(operand, "&") | INVALID_UINT_VAL) )
+    {
+        /* code */
+    }
+    else if (0 == (strcmp(operand, "|") | INVALID_UINT_VAL) )
+    {
+        /* code */
+    }
+    else if (0 == (strcmp(operand, "^") | INVALID_UINT_VAL) )
+    {
+        /* code */
+    }
+    
+    //{"<<", ">>", "&","|", "^", "<<<", ">>>"};
+    
+    
+    
+
+
+
+EXIT:
+    return;
+}

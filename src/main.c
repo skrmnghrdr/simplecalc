@@ -13,10 +13,8 @@
 #include <stdlib.h>
 
 #include <string.h>
-
 #include <float.h>
 #include <errno.h>
-
 #include "operations.h"
 
 /*
@@ -44,6 +42,25 @@ shl uint32_t
 and the rest would be uint32_t
 have a build script called build.sh to run this
 
+addedd:
+shift hand left function
+added uint check
+addedd goto end error
+added more error definition
+reduced amount of return statements
+added shift hand right functionality,
+addedd bitwise and
+addedd bitwise or 
+addedd bitwise exclusive or
+removed value check in main, moved to operations.c for future reuseage 
+
+todo:
+
+do the opearand swtich case/if else 
+do the rotation and
+DO NOT FORGET THE MODULO.
+ 
+
 
 */
 void print_debug_args(){
@@ -66,7 +83,7 @@ int main(int argc, char *argv[]){
     //first arg is alsways the filename
     //filename arg1 arg2 arg3
     char operand_buff[4];
-
+    
     errno = 0;
     __INT32_TYPE__ first_number;
     __INT32_TYPE__ second_number;
@@ -74,6 +91,7 @@ int main(int argc, char *argv[]){
     int calc_error = 0;
     int *ptr_calc_error = &calc_error;
 
+    struct results struct_result = {0};
     //unused?
     long long_first_number;
     long long_second_number;
@@ -92,40 +110,29 @@ int main(int argc, char *argv[]){
     long_second_number = strtol(argv[3], &ptr_end_second_number, 10);
 
     debug();
-
     snprintf(operand_buff, sizeof(operand_buff), "%s", argv[2]);
     if(errno){
-        //in the future, we can lookat errno here, just like how we did
-        //wiith the socket programming to see what was wrong,
-        //in C we can't just try except everything  :)
+        //both catches snprintf and strol error
         printf("Something went horribly wrong...\n");
-        return 0;
+        calc_error = UNKNOWN_ERROR;
+        goto ERROR_EXIT;
     }
-    if(check_min_max(long_first_number, long_second_number)){
-        //since strtolong does convert it to long,
-        //we can check if the number here exceeds int
-        printf("The number you have provided is too much or too lil for the likes of INT32_MAX, or INT32_MIN\n");
-        return 0;
-    }else{
-        first_number = long_first_number;
-        second_number = long_second_number;
-    }
-    // ✞✞✞ INPUT CLEANSED. LEAVE THiS VESSEL IN PEACE
-    //now with the input cleansed, we can decide which operations to put
-    /*
-    that being said, we can switch case the single characters, but for the multi ones, we might have to do a fat if else statement 
-    that's too complicated bro, we just probably need to compare all the strings here and call it a night, you're tried.
-     */
-    //debug anchor
-    
-    //__INT32_TYPE__ result = add(first_number, second_number, ptr_calc_error);
-    //__INT32_TYPE__ result = subtract(first_number, second_number, ptr_calc_error);
-    __INT32_TYPE__ result = divide(first_number, second_number, ptr_calc_error);
+    calculate(long_first_number,  operand_buff, long_second_number, ptr_calc_error, &struct_result);
 
-
-    printf("Result:%d\n", result);
-
+ERROR_EXIT:
     if(calc_error){
+        jet2holiday();
+        return -1;
+    }
+    if(struct_result.flag == PRINT_UINT)\
+    {
+        printf("%u", struct_result.uint32_result);
+    }
+    else if (struct_result.flag == PRINT_INT)
+    {
+        printf("%d", struct_result.int32_result);
+    }else{
+        //sopmething went wrong on the flag
         jet2holiday();
     }
     debug();
